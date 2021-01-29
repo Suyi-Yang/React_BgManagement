@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { Button, Modal, Form, Input } from 'antd';
 
-const CollectionCreateForm = ({ visible, onCreate, onCancel }) => {
+import LinkButton from '../../components/link-btn'
+
+const CollectionCreateForm = ({ visible, onCreate, onCancel, category }) => {
   const [form] = Form.useForm();
   return (
     <Modal
@@ -33,7 +35,8 @@ const CollectionCreateForm = ({ visible, onCreate, onCancel }) => {
         layout="vertical"
         name="form_in_modal"
         initialValues={{ //初始值
-          title: '家用电器', //TODO：动态获取当前行的category【1】
+          // title: '家用电器', 
+          title: category, //动态获取当前行的category【1】
         }}
       >
         <Form.Item name="title">
@@ -44,7 +47,7 @@ const CollectionCreateForm = ({ visible, onCreate, onCancel }) => {
   );
 };
 
-const UpdaeTest = () => {
+const UpdaeTest = (props) => {  
   const [visible, setVisible] = useState(false);
 
   const onCreate = (values) => {
@@ -53,17 +56,19 @@ const UpdaeTest = () => {
   };
 
   //自定义函数---TODO：从父级传过来  要从父级拿到当前所在行的category！！！
-  const updateClick = ()=>{
+  const updateClick = (values)=>{
     setVisible(true);
-    console.log('已点击');
+
+    // console.log('父级传来的属性：'+props.category);
+    // values=props.category
+    // console.log(values);
   }
   
   return (
-    <div>
-      <Button type="primary" onClick={updateClick}>修改分类【测试】</Button>
-      {/* <Button type="primary" onClick={()=>{setVisible(true);}}>修改分类【测试】</Button> */}
-      <CollectionCreateForm visible={visible} onCreate={onCreate} onCancel={()=>{setVisible(false);}}/>
-    </div>
+    <>
+      <LinkButton type="primary" onClick={()=>updateClick()}>修改分类</LinkButton>
+      <CollectionCreateForm visible={visible} onCreate={onCreate} onCancel={()=>{setVisible(false);}} category={props.category}/>
+    </>
   );
 };
 

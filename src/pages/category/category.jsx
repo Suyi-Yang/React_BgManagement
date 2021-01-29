@@ -5,10 +5,8 @@ import { ArrowRightOutlined } from '@ant-design/icons';
 
 import Addcategory from "./Addcategory";
 import Updatecategory from "./Updatecategory";
-import UpdaeTest from "./UpdaeTest";
 import LinkButton from '../../components/link-btn'
-import {reqCategorys} from '../../api'
-
+import {reqCategorys,reqUpdateCategorys,reqAddCategorys} from '../../api'
 
 export default class Category extends Component {
   state = {
@@ -27,9 +25,7 @@ export default class Category extends Component {
       {title: '操作', width: 260,
         render: (category) => ( //返回需要显示的界面标签
           <span>
-            {/* <Updatecategory></Updatecategory> */} {/* [修改分类]选项 */}            
-            <UpdaeTest></UpdaeTest> {/* [修改分类]选项---【测试版】 */}
-   
+            <Updatecategory category={category} updateCategory={this.updateCategory}></Updatecategory> {/* [修改分类]选项  */}          
             {this.state.parentId==='0' ? <LinkButton onClick={()=>this.showSubCategorys(category)}>查看子分类</LinkButton> : null  } {/* 显示二级列表时 不显示[查看子分类]选项 */}
             {/* category：每行代表的分类对象 */}
             {/* 向事件回调函数传递参数：先定义一个匿名函数，再函数调用处理的函数并传入数据 */}
@@ -38,10 +34,6 @@ export default class Category extends Component {
       },
     ];
   }
-  /* test = ()=>{
-    console.log('======='); //可以输出 但多次输出 不可取
-  } */
-
 
   //异步获取一级/二级分类列表显示
   getCategorys = async ()=>{
@@ -69,7 +61,7 @@ export default class Category extends Component {
       parentId: category._id,
       parentName: category.name
     }, ()=>{ //(箭头)回调函数在状态更新且重新render()后执行
-      this.getCategorys()
+      this.getCategorys()      
     })
     /* setState()是异步更新状态的 因此执行后不能立即获取到最新的状态
       需要立即获取最新状态 则在第二个参数的回调函数中执行相关操作 */
@@ -82,6 +74,28 @@ export default class Category extends Component {
       parentName: '',
       subCategorys: [],
     })
+  }
+
+  //(修改分类后)更新分类
+  updateCategory = async (category) => {
+    // 得到数据
+    const categoryId = category._id
+    const categoryName = category.name
+    // 异步请求更新分类
+    const result = await reqUpdateCategorys({categoryId, categoryName})
+    if (result.status === 0) {      
+      this.getCategorys() //重新获取列表
+    }
+  }
+
+  //添加分类
+  addCategory = async (categoryNew)=>{
+    //=====================TODO：this.parentId需要动态获取
+    //现在添加分类，全部会添加到一级分类列表，无法指定添加到其他二级分类列表
+    const result = await reqAddCategorys(this.parentId,categoryNew)
+    if (result.status === 0) {      
+      this.getCategorys() //重新获取列表
+    }
   }
 
   //为第一次render()准备数据
@@ -103,14 +117,15 @@ export default class Category extends Component {
         <span>{parentName}</span>
       </span>
     )
-    //card右侧按钮     
-    const extra = <Addcategory></Addcategory>        
+    //card右侧按钮
+    const extra = <Addcategory categorys={categorys} parentId={parentId} addCategory={this.addCategory}></Addcategory>
 
     return (
       <Card title={title} extra={extra}>
         <Table bordered rowKey='_id' loading={loading} columns={this.columns} 
         dataSource={parentId==='0' ? categorys:subCategorys}
         pagination={{defaultPageSize:5, showQuickJumper:true}} />
+        {/* <Demo></Demo> */}
       </Card>
     )
   }
