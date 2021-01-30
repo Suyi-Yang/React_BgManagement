@@ -34,7 +34,15 @@ const CollectionCreateForm = ({ visible, onCreate, onCancel, category }) => {
           title: category.name, //动态获取当前行的category【1】
         }}
       >
-        <Form.Item name="title">
+        <Form.Item 
+          name="title" 
+          rules={[
+            {
+              required: true,
+              message: '请输入分类名称!',
+            },
+          ]}
+        >
           <Input placeholder="请输入分类名称"/>
         </Form.Item>
       </Form>

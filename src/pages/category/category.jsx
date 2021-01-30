@@ -36,9 +36,12 @@ export default class Category extends Component {
   }
 
   //异步获取一级/二级分类列表显示
-  getCategorys = async ()=>{
+  /* parentId：
+      如果没有指定 则根据状态中的parentId请求
+      如果制定了 则根据指定的parentId请求 */
+  getCategorys = async (parentId)=>{
     this.setState({loading: true}) //发送请求前 显示loading
-    const {parentId} = this.state
+    parentId = parentId || this.state.parentId
     //发异步ajax请求 获取数据
     const result = await reqCategorys(parentId)
     this.setState({loading: false}) //请求完成后 隐藏loading
@@ -89,12 +92,16 @@ export default class Category extends Component {
   }
 
   //添加分类
-  addCategory = async (categoryNew)=>{
-    //=====================TODO：this.parentId需要动态获取
-    //现在添加分类，全部会添加到一级分类列表，无法指定添加到其他二级分类列表
-    const result = await reqAddCategorys(this.parentId,categoryNew)
+  addCategory = async (parentId,categoryName)=>{
+    const result = await reqAddCategorys(parentId,categoryName)
     if (result.status === 0) {      
-      this.getCategorys() //重新获取列表
+      if(parentId===this.state.parentId){ //如果是为当前分类列表添加
+        this.getCategorys() //重新获取当前分类列表 并刷新显示
+      }else if(parentId==='0'){ //如果是为一级分类列表添加(刷新后仍然显示当前分类列表)
+        this.getCategorys('0') //重新获取一级分类列表 但不跳转显示为一级列表
+      }
+      //弹出提示框 表示添加成功
+      message.success('已成功添加新分类：' + categoryName);
     }
   }
 
@@ -125,7 +132,6 @@ export default class Category extends Component {
         <Table bordered rowKey='_id' loading={loading} columns={this.columns} 
         dataSource={parentId==='0' ? categorys:subCategorys}
         pagination={{defaultPageSize:5, showQuickJumper:true}} />
-        {/* <Demo></Demo> */}
       </Card>
     )
   }
