@@ -44,7 +44,7 @@ export default class ProductHome extends Component{
           <span>
             {/* 将product对象使用state传递给目标路由组件 */}
             <LinkButton onClick={()=>this.props.history.push('/product/detail',{product})}>详情</LinkButton>
-            <LinkButton>修改</LinkButton>
+            <LinkButton onClick={()=>this.props.history.push('/product/addupdate',product)}>修改</LinkButton>
           </span>
         )
       }},
@@ -107,7 +107,7 @@ export default class ProductHome extends Component{
         <Button type='primary' onClick={()=>{this.getProducts(1)}}>搜索</Button>
       </span>
     )
-    const extra = (<Button type='primary'><PlusOutlined />添加商品</Button>)
+    const extra = (<Button type='primary' onClick={()=>this.props.history.push('/product/addupdate')}><PlusOutlined />添加商品</Button>)
     return (
       <Card title={title} extra={extra}>
         <Table 

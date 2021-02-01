@@ -58,3 +58,5 @@ export const reqSearchProducts = ({pageNum,pageSize,searchType,searchName}) => a
 export const reqCategory = (categoryId) => ajax(BASE+'/manage/category/info',{categoryId})
 //更新商品的状态(上架/下架)(14)
 export const reqUpdateStatus = (productId,status) => ajax(BASE+'/manage/product/updateStatus',{productId,status},'POST')
+//删除图片(16)
+export const reqDeleteImg = (name) => ajax(BASE+'/manage/img/delete',{name},'POST')

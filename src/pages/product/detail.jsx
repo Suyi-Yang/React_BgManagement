@@ -26,7 +26,6 @@ export default class ProductDetail extends Component{
       /* 方法2：Promise.all([req1,req2,..])
       一次性发送多个请求(只有都成功了 才正常处理) */
       const results = await Promise.all([reqCategory(pCategoryId),reqCategory(categoryId)])
-      //console.log(results); //后台数据有问题【待完善】
       const cName1 = results[0].data.name
       const cName2 = results[1].data.name
       this.setState({cName1,cName2})
@@ -44,7 +43,7 @@ export default class ProductDetail extends Component{
       </LinkButton>
     )
     return (
-      <Card title={title} className='product-detail'>
+      <Card title={title} className='product-subpage-title'>
         <List>
           <List.Item className='item'>
             <span className='left'>商品名称：</span>
