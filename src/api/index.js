@@ -58,5 +58,11 @@ export const reqSearchProducts = ({pageNum,pageSize,searchType,searchName}) => a
 export const reqCategory = (categoryId) => ajax(BASE+'/manage/category/info',{categoryId})
 //更新商品的状态(上架/下架)(14)
 export const reqUpdateStatus = (productId,status) => ajax(BASE+'/manage/product/updateStatus',{productId,status},'POST')
-//删除图片(16)
+//删除指定名称的图片(16)
 export const reqDeleteImg = (name) => ajax(BASE+'/manage/img/delete',{name},'POST')
+//添加/修改商品(12/13)
+export const reqAddOrUpdateProduct = (product) => ajax(BASE+'/manage/product/'+(product._id?'update':'add'),product,'POST')
+//add和update的区别：是否有商品id(product._id)
+// export const reqAddProduct = (product) => ajax(BASE+'/manage/product/add',product,'POST')
+// export const reqUpdateProduct = (product) => ajax(BASE+'/manage/product/update',product,'POST')
+

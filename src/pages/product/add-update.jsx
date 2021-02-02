@@ -1,11 +1,12 @@
 /* Product的[添加和更新的]子路由组件 */
 import React, { Component } from "react";
-import { Card, Form, Input, Button, Cascader } from "antd";
+import { Card, Form, Input, Button, Cascader, message } from "antd";
 import { ArrowLeftOutlined } from '@ant-design/icons';
 
 import LinkButton from '../../components/link-btn'
 import PicturesWall from "./pictures-wall";
-import {reqCategorys} from '../../api'
+import RichTextEditor from "./rich-text-editor";
+import {reqCategorys,reqAddOrUpdateProduct} from '../../api'
 
 export default class ProductAddUpdate extends Component {
   state = {
@@ -14,7 +15,8 @@ export default class ProductAddUpdate extends Component {
   constructor(props){
     super(props)
     //创建用来保存ref标识的标签对象的容器
-    this.pw = React.createRef()
+    this.pw = React.createRef() //商品图片
+    this.editor = React.createRef() //商品详情
   }
   //【分类】初始化选项列表(一级)
   initOptions = async (categorys)=>{
@@ -27,7 +29,7 @@ export default class ProductAddUpdate extends Component {
 
     //【修改商品】[二级分类商品]的[更新]
     const {isUpdate,product} = this
-    const {pCategoryId,categoryId} = product
+    const {pCategoryId} = product
     if(isUpdate && pCategoryId!=='0'){ //如果是一个[二级分类商品]的[更新]
       //获取对应的二级分类列表
       const subCategorys = await this.getCategorys(pCategoryId)
@@ -61,7 +63,7 @@ export default class ProductAddUpdate extends Component {
   }
   //【分类】选项变化
   onChange = (value, selectedOptions) => {
-    console.log(value, selectedOptions);
+    // console.log(value, selectedOptions);
   };
   //【分类】用于加载下一级列表的回调函数
   loadData = async selectedOptions => {
@@ -88,12 +90,43 @@ export default class ProductAddUpdate extends Component {
   };
 
   //【提交】表单
-  onFinish = (values) => {
-    // console.log(values);
+  onFinish = async (values) => {
+    // console.log(values); //查看方法本身能收集到的数据values
+    //【1】收集数据
+    //获取[商品图片]的数据
     const imgs = this.pw.current.getImgs()
-    // console.log('imgs:',imgs);
     values.product.imgs = imgs
-    console.log(values);
+    //获取[商品详情]的数据    
+    const detail = this.editor.current.getDetail()
+    values.product.detail = detail
+    //获取[分类id]的数据
+    const {categoryIds} = values.product
+    let pCategoryId,categoryId
+    if(categoryIds.length===1){ //如果categoryIds中只有一个数据
+      pCategoryId = '0' //则父id为0 即一级分类列表
+      categoryId = categoryIds[0] //此数据为:当前分类id
+    }else{ //如果categoryIds中有两个数据
+      pCategoryId = categoryIds[0] //第一个数据:父id
+      categoryId = categoryIds[1] //第二个数据:当前分类id
+    }
+    values.product.pCategoryId = pCategoryId //将父id添加到product对应属性上
+    values.product.categoryId = categoryId //将分类id添加到product对应属性上
+    //获取[_id]的数据
+    if(this.isUpdate){ //如果是【修改分类】才需要添加_id属性(【添加分类】不需要该属性)
+      values.product._id = this.product._id
+    }    
+    console.log(values); //查看自定义方法后 可收集到的数据values
+
+    //【2】调用接口请求函数去[添加/修改]
+    const result = await reqAddOrUpdateProduct(values.product)
+
+    //【3】根据结果 显示提示信息
+    if(result.status===0){
+      message.success(`${this.isUpdate ? '修改':'添加'}商品成功！`)
+      this.props.history.goBack()
+    }else{
+      message.error(`${this.isUpdate ? '修改':'添加'}商品失败！`)
+    }
   };
 
   UNSAFE_componentWillMount(){
@@ -110,7 +143,7 @@ export default class ProductAddUpdate extends Component {
 
   render() {
     const {isUpdate, product} = this
-    const {pCategoryId,categoryId,imgs} = product
+    const {pCategoryId,categoryId,imgs,detail} = product
     const categoryIds = [] //接收级联分类ID的数组
     if(isUpdate){ //【修改商品】
       if(pCategoryId==='0'){ //如果商品是一级分类
@@ -173,7 +206,7 @@ export default class ProductAddUpdate extends Component {
             <PicturesWall ref={this.pw} imgs={imgs} />
           </Form.Item>
           <Form.Item name={['product', 'detail']} label="商品详情">
-            <Input />
+            <RichTextEditor ref={this.editor} detail={detail}/>
           </Form.Item>
           <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 4 }}>
             <Button type="primary" htmlType="submit">提交</Button>

@@ -28,7 +28,7 @@ class Header extends Component {
         title = item.title //需要显示的title即为该item的title
       }else if(item.children){ //如果当前item对象有children
         //在item的children中 查找匹配的子item
-        const cItem = item.children.find(cItem => cItem.key===path)
+        const cItem = item.children.find(cItem => path.indexOf(cItem.key)===0)
         if(cItem){ //如果存在匹配的子item
           title = cItem.title //需要显示的title即为该子item的title
         }

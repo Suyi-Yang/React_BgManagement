@@ -24,7 +24,7 @@ export default class Admin extends Component{
       return <Redirect to='/login'/> //自动跳转到登录界面(在render()中)
     }
     return (      
-      <Layout style={{height:'100%'}}>
+      <Layout style={{minHeight:'100%'}}>
         <Sider>
           <LeftNav/>
         </Sider>

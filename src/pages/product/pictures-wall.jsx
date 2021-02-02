@@ -63,8 +63,9 @@ export default class PicturesWall extends React.Component {
   //file:当前操作的图片文件(上传/删除)
   //fileList:所有已上传图片文件对象的[数组]
   handleChange = async ({ file,fileList }) => {
-    console.log(file===fileList[fileList.length-1]); //false(file和fileList最后一张图 内容完全一致 但不全等)
-    console.log(file.status, file);
+    // console.log(file===fileList[fileList.length-1]); //false(file和fileList最后一张图 内容完全一致 但不全等)
+    // console.log(file.status, file);
+    
     //如果上传成功 则将当前上传的file对应的信息进行修正(name,url)
     if(file.status==='done'){
       const result = file.response //{status:0, data:{name:'xxx.jpg', url:'图片地址'}
@@ -100,9 +101,9 @@ export default class PicturesWall extends React.Component {
     return (
       <>
         <Upload
-          action="/manage/img/upload" //上传图片的接口地址
+          action="/manage/img/upload" //上传图片的接口地址(15)
           accept='image/*' //只接收图片格式
-          name={UPLOAD_IMG_NAME}
+          name={UPLOAD_IMG_NAME} //请求参数名(15)
           listType="picture-card" //卡片样式
           fileList={fileList} //所有已上传图片文件对象的[数组]
           onPreview={this.handlePreview}
