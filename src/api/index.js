@@ -66,3 +66,10 @@ export const reqAddOrUpdateProduct = (product) => ajax(BASE+'/manage/product/'+(
 // export const reqAddProduct = (product) => ajax(BASE+'/manage/product/add',product,'POST')
 // export const reqUpdateProduct = (product) => ajax(BASE+'/manage/product/update',product,'POST')
 
+/* role组件 */
+//获取所有角色的列表(18)
+export const reqRoles = () => ajax(BASE+'/manage/role/list')
+//添加角色(17)
+export const reqAddRole = (roleName) => ajax(BASE+'/manage/role/add',{roleName},'POST')
+//更新角色/设置角色权限(19) role:_id/menus/auth_time/auth_name
+export const reqUpdateRole = (role) => ajax(BASE+'/manage/role/update',role,'POST')

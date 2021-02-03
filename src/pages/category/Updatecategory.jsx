@@ -50,7 +50,7 @@ const CollectionCreateForm = ({ visible, onCreate, onCancel, category }) => {
   );
 };
 
-const Updatecategory = (props) => {  
+const UpdateCategory = (props) => {  
   const [visible, setVisible] = useState(false);
   let {category,updateCategory} = props
 
@@ -69,4 +69,4 @@ const Updatecategory = (props) => {
   );
 };
 
-export default Updatecategory
+export default UpdateCategory

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Modal, Form, Input,Button,Select } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 
-const Addcategory = (props) => {      
+const AddCategory = (props) => {      
   const {categorys,parentId,addCategory} = props
   const [visible, setVisible] = useState(false);
   
@@ -59,4 +59,4 @@ const Addcategory = (props) => {
     </>
   );
 };
-export default Addcategory
+export default AddCategory

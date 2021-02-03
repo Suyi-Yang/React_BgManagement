@@ -3,8 +3,8 @@ import React, { Component } from "react";
 import { Card, Table, message } from 'antd';
 import { ArrowRightOutlined } from '@ant-design/icons';
 
-import Addcategory from "./Addcategory";
-import Updatecategory from "./Updatecategory";
+import AddCategory from "./AddCategory";
+import UpdateCategory from "./UpdateCategory";
 import LinkButton from '../../components/link-btn'
 import {reqCategorys,reqUpdateCategorys,reqAddCategorys} from '../../api'
 
@@ -25,7 +25,7 @@ export default class Category extends Component {
       {title: '操作', width: 260,
         render: (category) => ( //返回需要显示的界面标签
           <span>
-            <Updatecategory category={category} updateCategory={this.updateCategory}></Updatecategory> {/* [修改分类]选项  */}          
+            <UpdateCategory category={category} updateCategory={this.updateCategory}></UpdateCategory> {/* [修改分类]选项  */}          
             {this.state.parentId==='0' ? <LinkButton onClick={()=>this.showSubCategorys(category)}>查看子分类</LinkButton> : null  } {/* 显示二级列表时 不显示[查看子分类]选项 */}
             {/* category：每行代表的分类对象 */}
             {/* 向事件回调函数传递参数：先定义一个匿名函数，再函数调用处理的函数并传入数据 */}
@@ -125,7 +125,7 @@ export default class Category extends Component {
       </span>
     )
     //card右侧按钮
-    const extra = <Addcategory categorys={categorys} parentId={parentId} addCategory={this.addCategory}></Addcategory>
+    const extra = <AddCategory categorys={categorys} parentId={parentId} addCategory={this.addCategory}></AddCategory>
 
     return (
       <Card title={title} extra={extra}>
