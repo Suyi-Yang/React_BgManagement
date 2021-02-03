@@ -88,7 +88,6 @@ export default class Role extends Component{
   }
 
   render(){
-    console.log('render()');
     //取出状态数据
     const {roles,role} = this.state
     const title = (
