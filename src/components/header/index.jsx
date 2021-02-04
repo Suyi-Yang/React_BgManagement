@@ -1,0 +1,104 @@
+/* 头部的组件 */
+import React, {Component} from 'react'
+import { withRouter } from "react-router-dom";
+import { Modal } from 'antd';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
+
+import LinkButton from '../link-btn'
+import memoryUtils from "../../utils/memoryUtils";
+import storageUtils from "../../utils/storageUtils";
+import menuList from '../../config/menuConfig'
+import { formatDate } from "../../utils/dateUtils";
+import { reqWeather } from "../../api";
+import './index.less'
+
+class Header extends Component {
+  state = {
+    currentTime: formatDate(Date.now()), //当前时间字符串
+    city: '', //城市
+    weather: '', //天气情况
+    temperature: '' //温度
+  }
+  //获取标题(当前选中的导航菜单项)
+  getTitle = ()=>{
+    const path = this.props.location.pathname //得到当前请求路径
+    let title
+    menuList.forEach(item => {
+      if(item.key===path){ //若当前item对象的key与path一样
+        title = item.title //需要显示的title即为该item的title
+      }else if(item.children){ //如果当前item对象有children
+        //在item的children中 查找匹配的子item
+        const cItem = item.children.find(cItem => path.indexOf(cItem.key)===0)
+        if(cItem){ //如果存在匹配的子item
+          title = cItem.title //需要显示的title即为该子item的title
+        }
+      }
+    })
+    return title //返回title
+  }
+  //获取当前时间
+  getTime = ()=>{
+    //每隔1s 获取当前时间 并更新状态数据currentTime
+    this.intervalId = setInterval(()=>{
+      const currentTime = formatDate(Date.now())
+      this.setState({currentTime})
+    },1000)
+  }
+  //获取某地天气
+  getWeather = async ()=>{
+    //调用接口请求异步获取数据
+    const {city,weather,temperature} = await reqWeather(420100) //武汉420100
+    this.setState({city,weather,temperature}) //更新状态
+  }
+  //退出登录
+  logout = ()=>{
+    Modal.confirm({ //弹出确认框
+      title: '您确定要退出登录吗?',
+      icon: <ExclamationCircleOutlined />,
+      // content: 'Some descriptions',
+      okText: '确认',
+      cancelText: '取消',
+      onOk: ()=>{
+        //1.删除保存的user数据
+        storageUtils.removeUser()
+        memoryUtils.user = {}
+        //2.跳转到login界面
+        this.props.history.replace('/login')
+      }
+    })
+  }
+
+  /* 第一次render()之后执行一次
+    一般在此执行异步操作：发ajax请求/启动定时器 */
+  componentDidMount(){
+    this.getTime() //获取当前时间
+    this.getWeather() //获取当前天气
+  }
+  /* 当前组件卸载之前调用 */
+  componentWillUnmount(){
+    clearInterval(this.intervalId) //清除[获取时间]定时器
+  }
+
+  render(){
+    const username = memoryUtils.user.username
+    const {currentTime,city,weather,temperature} = this.state
+    const title = this.getTitle() //得到当前需要显示的title
+
+    return (
+      <div className='header'>
+        <div className='header-top'>
+          <span>欢迎，{username}</span>
+          <LinkButton onClick={this.logout}>退出</LinkButton>
+        </div>
+        <div className='header-bottom'>
+          <div className='header-bottom-left'>{title}</div>
+          <div className='header-bottom-right'>
+            <span>{currentTime}</span>
+            <span>{city+' '+weather+' '+temperature+'℃'}</span>
+          </div>
+        </div>
+      </div>
+    )
+  }
+}
+export default withRouter(Header)
