@@ -16,6 +16,7 @@ const menuList = [
     title: ' 首页', // 菜单标题名称
     key: '/home', // 对应的 path
     icon: <HomeOutlined />, // 图标名称
+    isPublic: true, //公开的(任何role的用户都能看到首页)
   },
   {
     title: ' 商品',

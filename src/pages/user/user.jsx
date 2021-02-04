@@ -1,16 +1,25 @@
 /* 用户管理路由 */
 import React, { Component } from "react";
-import { Card, Table, Button, message, Modal } from 'antd';
+import { Card, Table, message, Modal, Button } from 'antd';
+import Draggable from 'react-draggable';
 
 import LinkButton from '../../components/link-btn';
 import { formatDate } from "../../utils/dateUtils";
 import { PAGE_SIZE } from "../../utils/constants";
-import {reqUsers,reqDeleteUsers,reqAddOrUpdateUsers, reqDeleteImg} from '../../api'
+import {reqUsers,reqDeleteUsers,reqAddOrUpdateUsers} from '../../api'
+import UserAddUpdate from "./user-form";
 
 export default class User extends Component {
   state = {
     users: [], //列表中的所有用户
+    roles: [], //所有角色的数组
+
+    visible: false,
+    disabled: true,
+    bounds: { left: 0, top: 0, bottom: 0, right: 0 },
   }
+  draggleRef = React.createRef(); //Modal的拖拽  
+  userFormRef = React.createRef(); //创建一个Ref 指定给form
 
   //根据role的数组 生成包含所有角色名称的对象(属性名用角色id值)
   initRoleNames = (roles) => {
@@ -34,7 +43,7 @@ export default class User extends Component {
       {title: '操作',
         render: (user) => ( //返回需要显示的界面标签
           <span>
-            <LinkButton>修改</LinkButton>
+            <LinkButton onClick={()=>this.showUpdate(user)}>修改</LinkButton>
             <LinkButton onClick={()=>this.deleteUsers(user)}>删除</LinkButton>
           </span>
         ),
@@ -54,17 +63,19 @@ export default class User extends Component {
     }
   }
   //创建/修改用户
-  addOrUpdateUsers = async ()=>{
-    // const result = await reqAddCategorys(parentId,categoryName)
-    // if (result.status === 0) {      
-    //   if(parentId===this.state.parentId){ //如果是为当前分类列表添加
-    //     this.getCategorys() //重新获取当前分类列表 并刷新显示
-    //   }else if(parentId==='0'){ //如果是为一级分类列表添加(刷新后仍然显示当前分类列表)
-    //     this.getCategorys('0') //重新获取一级分类列表 但不跳转显示为一级列表
-    //   }
-    //   //弹出提示框 表示添加成功
-    //   message.success('已成功添加新分类：' + categoryName);
-    // }
+  addOrUpdateUsers = async (user)=>{
+    // console.log('user.addOrUpdateUsers()',user);
+    if(this.user){ //【修改】时 需要给user指定_id属性
+      user._id = this.user._id
+    }
+    const result = await reqAddOrUpdateUsers(user)
+    if (result.status === 0) {
+      this.getUsers() //更新列表并显示
+      this.setState({visible: false,}) //隐藏Modal
+      message.success(`${this.user ? '修改':'创建'}用户成功！`)
+    }else{
+      message.error(`${this.user ? '修改':'创建'}用户失败！`)
+    }
   }
   //删除用户
   deleteUsers = (user)=>{
@@ -84,24 +95,78 @@ export default class User extends Component {
     })
   }
 
-  //为第一次render()准备数据
-  UNSAFE_componentWillMount(){
+  /* 显示Modal的两种情况 */  
+  showAdd = () => { //点击【创建】显示Modal
+    this.user = null //将this中的user重置为null
+    this.setState({visible: true,});
+  };
+  showUpdate = (user) => { //点击【修改】显示Modal
+    this.setState({visible: true,});
+    this.user = user //将user保存到this中    
+    this.userFormRef.current.showUser(user) //调用form中自定义的方法 显示当前user的数据
+  };
+
+  handleOk = () => { //点击【确认】
+    this.userFormRef.current.addUser() //调用form中自定义的方法 获取表单数据并发送请求
+  };
+  handleCancel = () => { //点击【取消】
+    this.userFormRef.current.resetForm() //调用form中自定义的方法 清空输入缓存
+    this.setState({visible: false,}); //隐藏Modal
+  };
+  onStart = (event, uiData) => { //开始拖拽Modal
+    const { clientWidth, clientHeight } = window?.document?.documentElement;
+    const targetRect = this.draggleRef?.current?.getBoundingClientRect();
+    this.setState({
+      bounds: {
+        left: -targetRect?.left + uiData?.x,
+        right: clientWidth - (targetRect?.right - uiData?.x),
+        top: -targetRect?.top + uiData?.y,
+        bottom: clientHeight - (targetRect?.bottom - uiData?.y),
+      },
+    });
+  };
+  
+  UNSAFE_componentWillMount(){ //为第一次render()准备数据
     this.initColumns()
-  }
-  //执行异步任务：发异步ajax请求
-  componentDidMount(){
+  }  
+  componentDidMount(){ //执行异步任务：发异步ajax请求
     this.getUsers()
   }
 
   render(){
-    const {users} = this.state //读取状态数据
-    const title = <Button type='primary'>创建用户</Button> //card左侧标题=>按钮
+    const { bounds,disabled,visible, users,roles } = this.state;
+    const user = this.user || {} //user可能有值(修改) 可能为空(创建)
+    const title = <Button type='primary' onClick={this.showAdd}>创建用户</Button>
     return (
       <Card title={title}>
         <Table bordered rowKey='_id'
           columns={this.columns} dataSource={users}
           pagination={{defaultPageSize:PAGE_SIZE, showQuickJumper:true}} 
         />
+        <Modal forceRender={true}
+          title={
+            <div style={{ width: '100%', cursor: 'move', }}
+              onMouseOver={() => {if (disabled) {this.setState({disabled: false,});}}}
+              onMouseOut={() => {this.setState({disabled: true,});}} >
+              {user._id ? '修改用户' : '创建用户'}
+            </div>}
+          visible={visible} okText='确认' cancelText='取消' cancle
+          onOk={this.handleOk} onCancel={this.handleCancel}
+          modalRender={modal => (
+            <Draggable
+              disabled={disabled}
+              bounds={bounds}
+              onStart={(event, uiData) => this.onStart(event, uiData)}
+            >
+              <div ref={this.draggleRef}>{modal}</div>
+            </Draggable>
+          )}
+          
+        >
+          <UserAddUpdate ref={this.userFormRef} 
+            roles={roles} user={user} addOrUpdateUsers={this.addOrUpdateUsers}
+          />
+        </Modal>
       </Card>
     )
   }

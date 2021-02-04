@@ -7,6 +7,7 @@ import UpdateRole from "./UpdateRole";
 import { reqRoles,reqAddRole,reqUpdateRole } from "../../api";
 import { PAGE_SIZE } from "../../utils/constants";
 import memoryUtils from '../../utils/memoryUtils'
+import storageUtils from '../../utils/storageUtils'
 import { formatDate } from "../../utils/dateUtils";
 
 export default class Role extends Component{
@@ -73,8 +74,16 @@ export default class Role extends Component{
     role.auth_name = memoryUtils.user.username //设置授权人为当前登录的用户
     const result = await reqUpdateRole(role) //发送请求 更新当前role的数据
     if(result.status===0){
-      this.setState({roles:[...this.state.roles]}) //更新整个roles列表数据
-      message.success('角色权限设置成功！')
+      //如果当前更新的是当前用户所属role的权限 则强制退出 需要重新登录
+      if(role._id===memoryUtils.user.role_id){
+        memoryUtils.user = {} //清空缓存的用户信息
+        storageUtils.removeUser()
+        this.props.history.replace('/login')
+        message.success('当前用户角色的权限已修改，请重新登录')
+      }else{
+        message.success('角色权限设置成功！')
+        this.setState({roles:[...this.state.roles]}) //更新整个roles列表数据
+      }
     }else{
       message.error('角色权限设置失败！')
     }
@@ -104,7 +113,11 @@ export default class Role extends Component{
           dataSource={roles} 
           columns={this.columns} 
           pagination={{defaultPageSize:PAGE_SIZE, showQuickJumper:true}}
-          rowSelection={{type:'radio', selectedRowKeys:[role._id]}}
+          rowSelection={{
+            type:'radio', 
+            selectedRowKeys:[role._id],
+            onSelect: (role)=>{this.setState({role})} //选择某个radio时回调
+          }}
           onRow={this.onRow}
         />
       </Card>
