@@ -3,7 +3,6 @@ import React, {Component} from 'react'
 import { withRouter } from "react-router-dom";
 import { Modal } from 'antd';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
-import { connect } from "react-redux";
 
 import LinkButton from '../link-btn'
 import memoryUtils from "../../utils/memoryUtils";
@@ -56,6 +55,7 @@ class Header extends Component {
     Modal.confirm({ //弹出确认框
       title: '您确定要退出登录吗?',
       icon: <ExclamationCircleOutlined />,
+      // content: 'Some descriptions',
       okText: '确认',
       cancelText: '取消',
       onOk: ()=>{
@@ -80,11 +80,9 @@ class Header extends Component {
   }
 
   render(){
-    const {currentTime,city,weather,temperature} = this.state
     const username = memoryUtils.user.username
-    //得到当前需要显示的title
-    // const title = this.getTitle() //发送请求
-    const title = this.props.headTitle //通过redux
+    const {currentTime,city,weather,temperature} = this.state
+    const title = this.getTitle() //得到当前需要显示的title
 
     return (
       <div className='header'>
@@ -103,11 +101,4 @@ class Header extends Component {
     )
   }
 }
-
-/* UI组件 */
-// export default withRouter(Header)
-/* 生成容器组件 */
-export default connect(
-  state => ({headTitle: state.headTitle}), //一般属性
-  {} //函数属性
-)(withRouter(Header))
+export default withRouter(Header)

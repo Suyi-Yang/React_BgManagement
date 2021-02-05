@@ -25,7 +25,9 @@ export default class Login extends Component {
     }
   }
 
-  onFinish = async (values) => {
+  onFinish = async (values) => {    
+    //console.log('接收到的表单数据: ', values);    
+    // 请求登录
     const {username,password} = values
     // 请求登录【1】 --->ajax请求
     /* reqLogin(username,password).then(response => {
@@ -42,14 +44,17 @@ export default class Login extends Component {
       alert('请求出错了：' + error.message)
     } */
     // 请求登录【3】 --->优化ajax请求函数模块 统一处理请求异常
+    /* const response = await reqLogin(username, password)
+    const result = response.data */ //{status:0, data:user} {status:1, msg:'xxx'}
     const result = await reqLogin(username, password)
+    // console.log('请求成功', response.data);
     if(result.status===0){ //登录成功
       message.success('登录成功') //提示登陆成功
       //保存user
       const user = result.data
       memoryUtils.user = user //保存到内存中
       storageUtils.saveUser(user) //保存到local中
-      this.props.history.replace('/home') //跳转到管理界面(不需要再回退到登录界面)
+      this.props.history.replace('/') //跳转到管理界面(不需要再回退到登录界面)
     }else{ //登录失败(status:1)
       message.error(result.msg) //提示错误信息
     }
