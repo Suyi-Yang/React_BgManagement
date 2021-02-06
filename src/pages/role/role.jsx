@@ -1,16 +1,16 @@
 /* 角色管理路由 */
 import React, { Component } from "react";
 import { Card, Table, message } from "antd";
+import { connect } from "react-redux";
 
 import AddRole from "./AddRole";
 import UpdateRole from "./UpdateRole";
 import { reqRoles,reqAddRole,reqUpdateRole } from "../../api";
 import { PAGE_SIZE } from "../../utils/constants";
-import memoryUtils from '../../utils/memoryUtils'
-import storageUtils from '../../utils/storageUtils'
 import { formatDate } from "../../utils/dateUtils";
+import { logout } from "../../redux/actions";
 
-export default class Role extends Component{
+class Role extends Component{
   state = {
     roles: [], //所有角色的列表
     role: {}, //当前选择的role
@@ -71,14 +71,12 @@ export default class Role extends Component{
   //【设置角色权限】role:_id/menus/auth_time/auth_name
   updateRole = async (role)=>{
     role.auth_time = Date.now() //设置授权时间
-    role.auth_name = memoryUtils.user.username //设置授权人为当前登录的用户
+    role.auth_name = this.props.user.username //设置授权人为当前登录的用户
     const result = await reqUpdateRole(role) //发送请求 更新当前role的数据
     if(result.status===0){
       //如果当前更新的是当前用户所属role的权限 则强制退出 需要重新登录
-      if(role._id===memoryUtils.user.role_id){
-        memoryUtils.user = {} //清空缓存的用户信息
-        storageUtils.removeUser()
-        this.props.history.replace('/login')
+      if(role._id===this.props.user.role_id){
+        this.props.logout()
         message.success('当前用户角色的权限已修改，请重新登录')
       }else{
         message.success('角色权限设置成功！')
@@ -124,3 +122,7 @@ export default class Role extends Component{
     )
   }
 }
+export default connect(
+  state => ({user: state.user}),
+  {logout}
+)(Role)

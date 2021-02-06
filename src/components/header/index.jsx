@@ -12,6 +12,7 @@ import menuList from '../../config/menuConfig'
 import { formatDate } from "../../utils/dateUtils";
 import { reqWeather } from "../../api";
 import './index.less'
+import { logout } from "../../redux/actions";
 
 class Header extends Component {
   state = {
@@ -54,16 +55,11 @@ class Header extends Component {
   //退出登录
   logout = ()=>{
     Modal.confirm({ //弹出确认框
-      title: '您确定要退出登录吗?',
       icon: <ExclamationCircleOutlined />,
-      okText: '确认',
-      cancelText: '取消',
+      title: '您确定要退出登录吗?',
+      okText: '确认', cancelText: '取消',
       onOk: ()=>{
-        //1.删除保存的user数据
-        storageUtils.removeUser()
-        memoryUtils.user = {}
-        //2.跳转到login界面
-        this.props.history.replace('/login')
+        this.props.logout()
       }
     })
   }
@@ -81,11 +77,9 @@ class Header extends Component {
 
   render(){
     const {currentTime,city,weather,temperature} = this.state
-    const username = memoryUtils.user.username
+    const username = this.props.user.username
     //得到当前需要显示的title
-    // const title = this.getTitle() //发送请求
     const title = this.props.headTitle //通过redux
-
     return (
       <div className='header'>
         <div className='header-top'>
@@ -108,6 +102,6 @@ class Header extends Component {
 // export default withRouter(Header)
 /* 生成容器组件 */
 export default connect(
-  state => ({headTitle: state.headTitle}), //一般属性
-  {} //函数属性
+  state => ({headTitle: state.headTitle, user: state.user}), //一般属性
+  {logout} //函数属性
 )(withRouter(Header))

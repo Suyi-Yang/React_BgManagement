@@ -2,7 +2,7 @@
 import { combineReducers } from "redux"; //整合多个reducer
 
 import storageUtils from "../utils/storageUtils";
-import { SET_HEAD_TITLE } from "./action-type";
+import { SET_HEAD_TITLE,RECEIVE_USER,SHOW_ERROR_MSG,RESET_USER } from "./action-type";
 
 //用来管理[头部标题]的reducer函数
 const initHeadTitle = '首页'
@@ -18,6 +18,14 @@ function headTitle(state=initHeadTitle, action){
 const initUser = storageUtils.getUser()
 function user(state=initUser, action){
   switch (action.type){
+    case RECEIVE_USER:
+      return action.user
+    case SHOW_ERROR_MSG:
+      const errorMsg = action.errorMsg
+      // state.errorMsg = errorMsg //不要直接修改原本状态数据(×)
+      return {...state, errorMsg} //原state数据+错误信息(√)
+    case RESET_USER: //退出登录时 重置用户信息
+      return {} //user置为空对象
     default:
       return state //返回原状态
   }

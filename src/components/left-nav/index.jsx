@@ -15,8 +15,8 @@ class LeftNav extends Component {
   //判断当前登录的用户对item是否有权限
   hasAuth = (item)=>{
     const {key,isPublic} = item
-    const menus = memoryUtils.user.role.menus
-    const username = memoryUtils.user.username
+    const menus = this.props.user.role.menus
+    const username = this.props.user.username
     /* 显示菜单项的情况： 
       1.用户是admin(管理员)
       2.当前item是公开的(isPublic为true)
@@ -124,6 +124,6 @@ class LeftNav extends Component {
 // export default withRouter(LeftNav)
 /* 生成容器组件 */
 export default connect(
-  state => ({}), //一般属性
+  state => ({user: state.user}), //一般属性
   {setHeadTitle} //函数属性
 )(withRouter(LeftNav))

@@ -2,8 +2,7 @@
 import React,{ Component } from "react";
 import { Redirect, Route, Switch } from "react-router-dom";
 import { Layout } from 'antd';
-
-import memoryUtils from '../../utils/memoryUtils'
+import { connect } from "react-redux";
 
 import LeftNav from '../../components/left-nav'
 import Header from '../../components/header'
@@ -17,9 +16,9 @@ import Line from '../line/line'
 import Pie from '../pie/pie'
 
 const { Footer, Sider, Content } = Layout;
-export default class Admin extends Component{
+class Admin extends Component{
   render(){
-    const user = memoryUtils.user //从内存中读取user
+    const user = this.props.user //从redux管理的状态中读取user
     if(!user || !user._id){ //如果没有user数据
       return <Redirect to='/login'/> //自动跳转到登录界面(在render()中)
     }
@@ -49,3 +48,7 @@ export default class Admin extends Component{
     )
   }
 }
+export default connect(
+  state => ({user: state.user}),
+  {}
+)(Admin)
