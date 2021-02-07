@@ -2,10 +2,6 @@
 import React, { Component } from "react";
 import { Card,Button } from "antd";
 import ReactEcharts from 'echarts-for-react';
-import echarts from 'echarts';
-// import echarts from 'echarts/lib/echarts';
-import 'echarts/lib/chart/bar';
-import 'echarts/lib/component/title';
 
 export default class Bar extends Component {
   state = {
@@ -35,6 +31,7 @@ export default class Bar extends Component {
       ]
     }
   }
+
   render(){
     const {sales,stores} = this.state
     return (
@@ -42,9 +39,9 @@ export default class Bar extends Component {
         <Card>
           <Button type='primary' onClick={this.update}>更新</Button>
         </Card>
-        <Card title='柱状图一'>
-          <ReactEcharts option={this.getOption(sales,stores)} />
-        </Card>
+        <Card title='柱状图'>
+          <ReactEcharts option={this.getOption(sales,stores)} style={{height: 300}}/>
+        </Card>        
       </div>
     )
   }

@@ -2,11 +2,11 @@
 import React, { Component } from 'react'
 import { Redirect } from "react-router-dom";
 import { connect } from "react-redux";
-import { Form, Input, Button, message } from 'antd';
+import { Form, Input, Button } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 
 import './login.less' /* 引入login.less */
-import logo from '../../assets/images/logo.png' /* 引入logo图片 */
+import logo from '../../assets/images/logo192.png' /* 引入logo图片 */
 // import {reqLogin} from '../../api'
 // import memoryUtils from '../../utils/memoryUtils'
 // import storageUtils from '../../utils/storageUtils'

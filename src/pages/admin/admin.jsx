@@ -12,8 +12,10 @@ import Product from '../product/product'
 import User from '../user/user'
 import Role from '../role/role'
 import Bar from '../bar/bar'
+// import Bar from '../bar/bar-noER'
 import Line from '../line/line'
 import Pie from '../pie/pie'
+import NotFound from "../not-found/not-found";
 
 const { Footer, Sider, Content } = Layout;
 class Admin extends Component{
@@ -31,15 +33,16 @@ class Admin extends Component{
           <Header>Header</Header>
           <Content style={{margin:20, backgroundColor:'#fff'}}>
             <Switch>
-              <Route path='/home' component={Home}/>
-              <Route path='/category' component={Category}/>
-              <Route path='/product' component={Product}/>
-              <Route path='/user' component={User}/>
-              <Route path='/role' component={Role}/>
-              <Route path='/charts/bar' component={Bar}/>
-              <Route path='/charts/line' component={Line}/>
-              <Route path='/charts/pie' component={Pie}/>
-              <Redirect to='/home'/>
+              <Redirect from='/' to='/home' exact/> {/* exact:精确匹配 */}
+              <Route path='/home' component={Home} exact/>
+              <Route path='/category' component={Category} exact/>
+              <Route path='/product' component={Product} exact/>
+              <Route path='/user' component={User} exact/>
+              <Route path='/role' component={Role} exact/>
+              <Route path='/charts/bar' component={Bar} exact/>
+              <Route path='/charts/line' component={Line} exact/>
+              <Route path='/charts/pie' component={Pie} exact/>
+              <Route component={NotFound}/> {/* 没有匹配到以上任何一个时 显示NotFound组件 */}
             </Switch>
           </Content>
           <Footer style={{textAlign:'center',color:'rgb(170,170,170)'}}>推荐使用谷歌浏览器，可以获得更佳页面操作体验</Footer>

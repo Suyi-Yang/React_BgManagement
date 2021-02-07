@@ -6,8 +6,6 @@ import { ExclamationCircleOutlined } from '@ant-design/icons';
 import { connect } from "react-redux";
 
 import LinkButton from '../link-btn'
-import memoryUtils from "../../utils/memoryUtils";
-import storageUtils from "../../utils/storageUtils";
 import menuList from '../../config/menuConfig'
 import { formatDate } from "../../utils/dateUtils";
 import { reqWeather } from "../../api";

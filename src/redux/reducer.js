@@ -5,7 +5,7 @@ import storageUtils from "../utils/storageUtils";
 import { SET_HEAD_TITLE,RECEIVE_USER,SHOW_ERROR_MSG,RESET_USER } from "./action-type";
 
 //用来管理[头部标题]的reducer函数
-const initHeadTitle = '首页'
+const initHeadTitle = '' //若初始化为404 则不应该显示任何title
 function headTitle(state=initHeadTitle, action){
   switch (action.type){
     case SET_HEAD_TITLE:

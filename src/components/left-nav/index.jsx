@@ -4,9 +4,8 @@ import { Link, withRouter } from "react-router-dom";
 import { Menu } from 'antd';
 import { connect } from "react-redux";
 
-import logo from '../../assets/images/logo.png'
+import logo from '../../assets/images/logo192.png'
 import menuList from '../../config/menuConfig'
-import memoryUtils from "../../utils/memoryUtils"
 import './index.less'
 import { setHeadTitle } from "../../redux/actions";
 
