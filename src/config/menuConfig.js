@@ -51,7 +51,7 @@ const menuList = [
     icon: <AreaChartOutlined />,
     children: [
       {
-        title: ' 柱形图',
+        title: ' 柱状图',
         key: '/charts/bar',
         icon: <BarChartOutlined />
       },

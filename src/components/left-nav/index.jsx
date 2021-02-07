@@ -2,19 +2,20 @@
 import React, { Component } from "react";
 import { Link, withRouter } from "react-router-dom";
 import { Menu } from 'antd';
+import { connect } from "react-redux";
 
-import logo from '../../assets/images/logo.png'
+import logo from '../../assets/images/logo192.png'
 import menuList from '../../config/menuConfig'
-import memoryUtils from "../../utils/memoryUtils"
 import './index.less'
+import { setHeadTitle } from "../../redux/actions";
 
 const { SubMenu } = Menu;
 class LeftNav extends Component {
   //判断当前登录的用户对item是否有权限
   hasAuth = (item)=>{
     const {key,isPublic} = item
-    const menus = memoryUtils.user.role.menus
-    const username = memoryUtils.user.username
+    const menus = this.props.user.role.menus
+    const username = this.props.user.username
     /* 显示菜单项的情况： 
       1.用户是admin(管理员)
       2.当前item是公开的(isPublic为true)
@@ -29,23 +30,25 @@ class LeftNav extends Component {
   
   /* 根据menu的[数据数组] 生成对应的[标签数组] */
   /* 方法1：使用map() + 递归调用 */
-  getMenuNodesMap = (menuList)=>{
+  /* getMenuNodesMap = (menuList)=>{
     return menuList.map(item => {
       if(!item.children){ //没有子菜单列表时
         return (
           <Menu.Item key={item.key} icon={item.icon}>
-            <Link to={item.key}>{item.title}</Link>            
+            <Link to={item.key} onClick={()=>this.props.setHeadTitle(item.title)}>
+              {item.title}
+            </Link>            
           </Menu.Item>
         )
       }else{ //有子菜单列表时
-        return (
+        return ( //递归调用:遍历子项
           <SubMenu key={item.key} icon={item.icon} title={item.title}>
-            {this.getMenuNodes(item.children)} {/* 递归调用:遍历子项 */}
+            {this.getMenuNodes(item.children)}
           </SubMenu>
         )
       }
     })
-  }
+  } */
   /* 方法2：使用reduce() + 递归调用 */
   getMenuNodes = (menuList)=>{
     const path = this.props.location.pathname //得到当前请求的路由路径
@@ -53,9 +56,16 @@ class LeftNav extends Component {
       //如果当前用户有item对应的权限 才显示对应的菜单项
       if(this.hasAuth(item)){
         if(!item.children){
+          //判断[当前遍历的item]是否为[当前path]对应的item
+          if(item.key===path || path.indexOf(item.key)===0){
+            //更新redux中headTitle的状态
+            this.props.setHeadTitle(item.title)
+          }
           pre.push(( //没有子菜单列表时 向pre中添加<Menu.Item>
             <Menu.Item key={item.key} icon={item.icon}>
-              <Link to={item.key}>{item.title}</Link>            
+              <Link to={item.key} onClick={()=>this.props.setHeadTitle(item.title)}>
+                {item.title}
+              </Link>            
             </Menu.Item>
           ))
         }else{
@@ -83,7 +93,6 @@ class LeftNav extends Component {
   }
 
   render(){
-    // const menuNodes = this.getMenuNodes(menuList)
     let path = this.props.location.pathname //得到当前请求的路由路径
     if(path.indexOf('/product')===0){ //当前请求的是商品或其子路由界面
       path = '/product'
@@ -102,7 +111,6 @@ class LeftNav extends Component {
           theme="dark"
         >
           {this.menuNodes}
-          {/* {menuNodes} */}
         </Menu>
       </div>
     )
@@ -111,4 +119,10 @@ class LeftNav extends Component {
 /* withRouter高阶组件：
     包装非路由组件(LeftNav) 返回一个新的组件
     新的组件 向非路由组件传递3个属性:history/location/match */
-export default withRouter(LeftNav)
+/* UI组件 */
+// export default withRouter(LeftNav)
+/* 生成容器组件 */
+export default connect(
+  state => ({user: state.user}), //一般属性
+  {setHeadTitle} //函数属性
+)(withRouter(LeftNav))

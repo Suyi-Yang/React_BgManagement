@@ -1,16 +1,18 @@
 /* 用户登录的路由组件 */
 import React, { Component } from 'react'
 import { Redirect } from "react-router-dom";
-import { Form, Input, Button, message } from 'antd';
+import { connect } from "react-redux";
+import { Form, Input, Button } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 
 import './login.less' /* 引入login.less */
-import logo from '../../assets/images/logo.png' /* 引入logo图片 */
-import {reqLogin} from '../../api'
-import memoryUtils from '../../utils/memoryUtils'
-import storageUtils from '../../utils/storageUtils'
+import logo from '../../assets/images/logo192.png' /* 引入logo图片 */
+// import {reqLogin} from '../../api'
+// import memoryUtils from '../../utils/memoryUtils'
+// import storageUtils from '../../utils/storageUtils'
+import { login } from "../../redux/actions";
 
-export default class Login extends Component {
+class Login extends Component {
   validatePwd = (rule,value)=>{
     if (!value) {
       return Promise.reject('密码必须输入');
@@ -25,46 +27,17 @@ export default class Login extends Component {
     }
   }
 
-  onFinish = async (values) => {    
-    //console.log('接收到的表单数据: ', values);    
-    // 请求登录
-    const {username,password} = values
-    // 请求登录【1】 --->ajax请求
-    /* reqLogin(username,password).then(response => {
-      console.log('成功了', response.data);
-    }).catch(error => {
-      console.log('失败了', error);
-    }) */
-    // 请求登录【2】 --->async和await简化promise的使用
-    /* try {
-      const response = await reqLogin(username, password)
-      console.log('请求成功', response.data);
-    } catch (error) {
-      // console.log('请求失败', error);
-      alert('请求出错了：' + error.message)
-    } */
-    // 请求登录【3】 --->优化ajax请求函数模块 统一处理请求异常
-    /* const response = await reqLogin(username, password)
-    const result = response.data */ //{status:0, data:user} {status:1, msg:'xxx'}
-    const result = await reqLogin(username, password)
-    // console.log('请求成功', response.data);
-    if(result.status===0){ //登录成功
-      message.success('登录成功') //提示登陆成功
-      //保存user
-      const user = result.data
-      memoryUtils.user = user //保存到内存中
-      storageUtils.saveUser(user) //保存到local中
-      this.props.history.replace('/') //跳转到管理界面(不需要再回退到登录界面)
-    }else{ //登录失败(status:1)
-      message.error(result.msg) //提示错误信息
-    }
+  onFinish = (values) => {
+    const {username,password} = values    
+    // 调用分发异步action的函数=>发登录的异步请求=>更新状态
+    this.props.login(username,password)    
   };
 
   render() {
     //(刷新页面时)如果用户已经登录 则自动跳转到管理界面(即不会进入登录页面)
-    const user = memoryUtils.user
+    const user = this.props.user
     if(user && user._id){
-      return <Redirect to='/'/>
+      return <Redirect to='/home'/> //如果登陆成功 跳转到首页
     }
     return (
       <div className='login'>
@@ -72,7 +45,7 @@ export default class Login extends Component {
           <img src={logo} alt="logo" />
           <h1>React项目：后台管理系统</h1>
         </header>
-        <section className='login-content'>
+        <section className='login-content'>          
           <h2>用户登录</h2>
           <Form name="normal_login" className="login-form" onFinish={this.onFinish}>
             <Form.Item name="username" rules={[ /* 声明式验证:直接使用别人定义好的验证规则进行验证 */
@@ -86,16 +59,22 @@ export default class Login extends Component {
             </Form.Item>
             <Form.Item name="password" rules={[{validator: this.validatePwd}]}>             
               <Input prefix={<LockOutlined className="site-form-item-icon" />} type="password" placeholder="密码" />
-            </Form.Item>
+            </Form.Item>            
             <Form.Item>
               <Button type="primary" htmlType="submit" className="login-form-button">登录</Button>
-            </Form.Item>
-          </Form>          
+            </Form.Item>            
+          </Form>
+          {/* 如果登录失败 显示错误信息 */}
+          <span style={{float:'right',color:'red'}}>{user.errorMsg}</span>
         </section>
       </div>
     )
   }
 }
+export default connect(
+  state => ({user:state.user}),
+  {login}
+)(Login)
 
 /* 
   async和await

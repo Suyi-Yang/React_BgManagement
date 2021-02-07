@@ -3,14 +3,14 @@ import React, {Component} from 'react'
 import { withRouter } from "react-router-dom";
 import { Modal } from 'antd';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
+import { connect } from "react-redux";
 
 import LinkButton from '../link-btn'
-import memoryUtils from "../../utils/memoryUtils";
-import storageUtils from "../../utils/storageUtils";
 import menuList from '../../config/menuConfig'
 import { formatDate } from "../../utils/dateUtils";
 import { reqWeather } from "../../api";
 import './index.less'
+import { logout } from "../../redux/actions";
 
 class Header extends Component {
   state = {
@@ -53,17 +53,11 @@ class Header extends Component {
   //退出登录
   logout = ()=>{
     Modal.confirm({ //弹出确认框
-      title: '您确定要退出登录吗?',
       icon: <ExclamationCircleOutlined />,
-      // content: 'Some descriptions',
-      okText: '确认',
-      cancelText: '取消',
+      title: '您确定要退出登录吗?',
+      okText: '确认', cancelText: '取消',
       onOk: ()=>{
-        //1.删除保存的user数据
-        storageUtils.removeUser()
-        memoryUtils.user = {}
-        //2.跳转到login界面
-        this.props.history.replace('/login')
+        this.props.logout()
       }
     })
   }
@@ -80,10 +74,10 @@ class Header extends Component {
   }
 
   render(){
-    const username = memoryUtils.user.username
     const {currentTime,city,weather,temperature} = this.state
-    const title = this.getTitle() //得到当前需要显示的title
-
+    const username = this.props.user.username
+    //得到当前需要显示的title
+    const title = this.props.headTitle //通过redux
     return (
       <div className='header'>
         <div className='header-top'>
@@ -101,4 +95,11 @@ class Header extends Component {
     )
   }
 }
-export default withRouter(Header)
+
+/* UI组件 */
+// export default withRouter(Header)
+/* 生成容器组件 */
+export default connect(
+  state => ({headTitle: state.headTitle, user: state.user}), //一般属性
+  {logout} //函数属性
+)(withRouter(Header))
